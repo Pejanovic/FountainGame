@@ -13,7 +13,6 @@ std::string loadShaderSource(const char* filepath) {
     ss << file.rdbuf();
     std::string content = ss.str();
 
-    // Remove BOM if present
     if (content.size() >= 3 &&
         (unsigned char)content[0] == 0xEF &&
         (unsigned char)content[1] == 0xBB &&

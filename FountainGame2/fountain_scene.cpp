@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 
-// cubeVAO definition (for reuse)
+
 unsigned int cubeVAO = 0, cubeVBO = 0;
 static std::vector<glm::vec3> splashPositions;
 static std::vector<glm::vec3> splashVelocities;
@@ -16,7 +16,6 @@ static std::vector<float> splashRotations;
 void initCube() {
     if (cubeVAO != 0) return;
     float vertices[] = {
-        // pos           // uv
        -0.5f, -0.5f, -0.5f, 0, 0,  0.5f, -0.5f, -0.5f, 1, 0,  0.5f,  0.5f, -0.5f, 1, 1,
         0.5f,  0.5f, -0.5f, 1, 1, -0.5f,  0.5f, -0.5f, 0, 1, -0.5f, -0.5f, -0.5f, 0, 0,
        -0.5f, -0.5f,  0.5f, 0, 0,  0.5f, -0.5f,  0.5f, 1, 0,  0.5f,  0.5f,  0.5f, 1, 1,
@@ -54,12 +53,10 @@ void drawCube(unsigned int shaderProgram, const glm::mat4& model) {
 
 void drawPyramid(unsigned int shaderProgram, const glm::mat4& model) {
     float vertices[] = {
-        // base
         -0.5f, 0.0f, -0.5f,   0.0f, 0.0f,
          0.5f, 0.0f, -0.5f,   1.0f, 0.0f,
          0.5f, 0.0f,  0.5f,   1.0f, 1.0f,
         -0.5f, 0.0f,  0.5f,   0.0f, 1.0f,
-        // tip
          0.0f, 1.0f,  0.0f,   0.5f, 0.5f
     };
     unsigned int indices[] = {

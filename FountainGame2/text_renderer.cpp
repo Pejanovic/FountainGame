@@ -6,7 +6,6 @@
 #include <fstream>
 #include <sstream>
 
-// Inline shader sources
 const char* textVertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec4 vertex;
@@ -39,7 +38,6 @@ void main()
 void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
     std::cout << "Loading font: " << fontPath << std::endl;
 
-    // Initialize FreeType
     FT_Library ft;
     if (FT_Init_FreeType(&ft)) {
         std::cout << "FREETYPE: Failed to init FreeType Library" << std::endl;
@@ -52,7 +50,6 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
         std::cout << "FREETYPE: Failed to load font: " << fontPath << std::endl;
         std::cout << "Check if font file exists and path is correct" << std::endl;
 
-        // Try alternative paths
         std::cout << "Trying alternative font paths..." << std::endl;
         if (FT_New_Face(ft, "C:/Windows/Fonts/arial.ttf", 0, &face) == 0) {
             std::cout << "Found Arial font in Windows/Fonts directory" << std::endl;
@@ -78,7 +75,6 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     int charactersLoaded = 0;
-    // Load first 128 characters of ASCII set
     for (GLubyte c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
             std::cout << "FREETYPE: Failed to load Glyph for character: " << (char)c << " (" << (int)c << ")" << std::endl;
@@ -87,7 +83,6 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
 
         charactersLoaded++;
 
-        // Generate texture
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -103,13 +98,11 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
             face->glyph->bitmap.buffer
         );
 
-        // Set texture options
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        // Store character
         Character character = {
             texture,
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
@@ -121,11 +114,9 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
 
     std::cout << "Successfully loaded " << charactersLoaded << " characters" << std::endl;
 
-    // Clean up FreeType
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 
-    // Configure VAO/VBO for texture quads
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
@@ -136,13 +127,10 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 
-    // Create shader program
-    // Compile vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &textVertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
-    // Check vertex shader compilation
     int success;
     char infoLog[512];
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
@@ -151,25 +139,21 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
         std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    // Compile fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &textFragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
 
-    // Check fragment shader compilation
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 
-    // Create shader program
     shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
 
-    // Check linking
     glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
@@ -179,7 +163,6 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
         std::cout << "Shader program compiled and linked successfully" << std::endl;
     }
 
-    // Clean up shaders
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
@@ -188,7 +171,6 @@ void TextRenderer::Load(std::string fontPath, GLuint fontSize) {
 
 void TextRenderer::RenderText(std::string text, float x, float y, float scale, glm::vec3 color, glm::mat4 projection) {
 
-    // Activate corresponding render state
     glUseProgram(shaderProgram);
     glUniform1i(glGetUniformLocation(shaderProgram, "text"), 0);
     glUniform3f(glGetUniformLocation(shaderProgram, "textColor"), color.x, color.y, color.z);
@@ -197,7 +179,6 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
     glBindVertexArray(VAO);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    // Iterate through all characters
     std::string::const_iterator c;
     for (c = text.begin(); c != text.end(); c++) {
 
@@ -209,7 +190,6 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale, g
         float w = ch.Size.x * scale;
         float h = ch.Size.y * scale;
 
-        // Update VBO for each character
         float vertices[6][4] = {
             { xpos,     ypos + h,   0.0f, 0.0f },
             { xpos,     ypos,       0.0f, 1.0f },

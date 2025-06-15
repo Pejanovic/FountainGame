@@ -14,7 +14,7 @@
 #include "text_renderer.h"
 #include <vector>
 
-//Text
+//Textr
 TextRenderer text;
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -30,8 +30,6 @@ float fov = 45.0f;
 // Zvijezde
 std::vector<glm::vec3> stars;
 const int NUM_STARS = 200;
-
-
 
 unsigned int groundVAO, groundVBO;
 
@@ -200,9 +198,7 @@ int main() {
 
         // Fountain
         glDisable(GL_CULL_FACE);
-
         drawFountain(sceneShader, waterShader, stoneTex, waterTex, view, projection);
-
         glEnable(GL_CULL_FACE);
 
         glUseProgram(starsShader);
